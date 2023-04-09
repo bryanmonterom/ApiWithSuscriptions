@@ -29,8 +29,12 @@ namespace WebAPIAutores.Controllers
         {
 
             var usuarioId = ObtenerUsuarioId();
-            var llaves = await context.LlavesAPI.Where(a => a.UsuarioId == usuarioId).ToListAsync();
-            return mapper.Map<List<LlaveDTO>>(llaves);
+            var llaves = await context.LlavesAPI
+                .Include(a=> a.RestriccionesDominio)
+                .Include(a=> a.RestriccionesIP)
+                .Where(a => a.UsuarioId == usuarioId).ToListAsync();
+            var dto = mapper.Map<List<LlaveDTO>>(llaves);
+            return dto;
         }
 
         [HttpPost]

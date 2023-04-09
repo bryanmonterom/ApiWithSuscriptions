@@ -10,9 +10,9 @@ namespace WebAPIAutores.Entidades
         public bool Activa { get; set; }
         public string UsuarioId { get; set; }
         public IdentityUser Usuario { get; set; }   
-        public IEnumerable<Peticion> Peticiones { get; set; }
-        public IEnumerable<RestriccionDominio> RestriccionDominio { get; set; }
-        public IEnumerable<RestriccionesIP> RestriccionesIP { get; set; }
+        public List<Peticion> Peticiones { get; set; }
+        public List<RestriccionDominio> RestriccionesDominio { get; set; }
+        public List<RestriccionesIP> RestriccionesIP { get; set; }
 
     }
 

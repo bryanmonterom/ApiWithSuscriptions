@@ -36,6 +36,7 @@ namespace WebAPIAutores.Middlewares
 
                 await siguiente(httpContext);
                 return;
+
             }
 
             if (llaveStringValues.Count == 0) {
@@ -55,7 +56,7 @@ namespace WebAPIAutores.Middlewares
 
             var llave = llaveStringValues[0];
 
-            var llaveDB = await context.LlavesAPI.Include(a=> a.RestriccionDominio).Include(a=> a.RestriccionesIP).FirstOrDefaultAsync(a => a.Llave == llave);
+            var llaveDB = await context.LlavesAPI.Include(a=> a.RestriccionesDominio).Include(a=> a.RestriccionesIP).FirstOrDefaultAsync(a => a.Llave == llave);
             if (llaveDB == null)
             {
                 httpContext.Response.StatusCode = 400;
@@ -107,12 +108,12 @@ namespace WebAPIAutores.Middlewares
         private bool PeticionSuperaAlgunaDeLasRestricciones(LlaveAPI llaveAPI, HttpContext httpContext) {
 
             
-            var hayRestricciones = llaveAPI.RestriccionDominio == null || llaveAPI.RestriccionesIP == null;
+            var hayRestricciones = llaveAPI.RestriccionesDominio == null || llaveAPI.RestriccionesIP == null;
             if (hayRestricciones) {
                 return true;
             }
 
-            var peticionSuperaRestriccionesDeDominio = PeticionSuperaRestriccionDominio(llaveAPI.RestriccionDominio.ToList(), httpContext);
+            var peticionSuperaRestriccionesDeDominio = PeticionSuperaRestriccionDominio(llaveAPI.RestriccionesDominio.ToList(), httpContext);
 
             var peticionSuperaRestriccionesDeIP = PeticionSuperaRestriccionIP(llaveAPI.RestriccionesIP.ToList(), httpContext);
 
