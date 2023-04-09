@@ -114,7 +114,10 @@ namespace WebAPIAutores.Middlewares
 
             var peticionSuperaRestriccionesDeDominio = PeticionSuperaRestriccionDominio(llaveAPI.RestriccionDominio.ToList(), httpContext);
 
-            return peticionSuperaRestriccionesDeDominio;
+            var peticionSuperaRestriccionesDeIP = PeticionSuperaRestriccionIP(llaveAPI.RestriccionesIP.ToList(), httpContext);
+
+
+            return peticionSuperaRestriccionesDeDominio || peticionSuperaRestriccionesDeIP;
         }
 
         private bool PeticionSuperaRestriccionDominio(List<RestriccionDominio> restricciones, HttpContext httpContext) {
@@ -139,5 +142,24 @@ namespace WebAPIAutores.Middlewares
 
 
         }
+
+        private bool PeticionSuperaRestriccionIP(List<RestriccionesIP> restricciones, HttpContext httpContext)
+        {
+
+            if (restricciones == null || restricciones.Count == 0)
+            {
+                return false;
+            }
+
+            var ip = httpContext.Connection.RemoteIpAddress.ToString();
+            if (ip == string.Empty)
+            {
+                return false;
+            }
+
+            var superaRestriccion = restricciones.Any(a => a.IP == ip);
+            return superaRestriccion;
+        }
+
     }
 }
