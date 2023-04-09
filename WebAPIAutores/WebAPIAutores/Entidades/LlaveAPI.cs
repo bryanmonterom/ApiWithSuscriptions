@@ -10,6 +10,7 @@ namespace WebAPIAutores.Entidades
         public bool Activa { get; set; }
         public string UsuarioId { get; set; }
         public IdentityUser Usuario { get; set; }   
+        public IEnumerable<Peticion> Peticiones { get; set; }
     }
 
     public enum TipoLlave { 

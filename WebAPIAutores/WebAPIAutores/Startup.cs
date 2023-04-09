@@ -128,6 +128,7 @@ namespace WebAPIAutores
             app.UseRouting();
 
             app.UseCors();
+            app.UseLimitarPeticiones();
 
             app.UseAuthorization();
 
