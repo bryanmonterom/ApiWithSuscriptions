@@ -30,7 +30,7 @@ namespace WebAPIAutores.Middlewares
             var llaveStringValues = httpContext.Request.Headers["X-Api-Key"];
             var ruta = httpContext.Request.Path.ToString();
 
-            var estaLaRutaEnListaBlanca = limitarPeticionesConfiguracion.ListaBlancaRutas.Any(a=> ruta.Contains(a));
+            var estaLaRutaEnListaBlanca = limitarPeticionesConfiguracion.ListaBlancaRutas.Any(a => ruta.Contains(a));
 
             if (estaLaRutaEnListaBlanca) {
 
@@ -45,7 +45,7 @@ namespace WebAPIAutores.Middlewares
                 return;
             }
 
-            if (llaveStringValues.Count >1)
+            if (llaveStringValues.Count > 1)
             {
 
                 httpContext.Response.StatusCode = 400;
@@ -55,7 +55,7 @@ namespace WebAPIAutores.Middlewares
 
             var llave = llaveStringValues[0];
 
-            var llaveDB = await context.LlavesAPI.FirstOrDefaultAsync(a => a.Llave ==llave );
+            var llaveDB = await context.LlavesAPI.Include(a=> a.RestriccionDominio).Include(a=> a.RestriccionesIP).FirstOrDefaultAsync(a => a.Llave == llave);
             if (llaveDB == null)
             {
                 httpContext.Response.StatusCode = 400;
@@ -74,7 +74,7 @@ namespace WebAPIAutores.Middlewares
 
                 var hoy = DateTime.Today;
                 var manana = hoy.AddDays(1);
-                var cantidadPeticionesRealizadasHoy = await context.Peticiones.CountAsync(a=> a.LlaveId == llaveDB.Id && a.FechaPeticion >=hoy && a.FechaPeticion<manana);
+                var cantidadPeticionesRealizadasHoy = await context.Peticiones.CountAsync(a => a.LlaveId == llaveDB.Id && a.FechaPeticion >= hoy && a.FechaPeticion < manana);
                 if (cantidadPeticionesRealizadasHoy >= limitarPeticionesConfiguracion.PeticionesPorDiaGratuito) {
 
                     httpContext.Response.StatusCode = 429; // Too many request
@@ -86,12 +86,58 @@ namespace WebAPIAutores.Middlewares
 
             }
 
+            var superaRestricciones = PeticionSuperaAlgunaDeLasRestricciones(llaveDB, httpContext);
+            if (!superaRestricciones)
+            {
+
+                httpContext.Response.StatusCode = 403;
+                await httpContext.Response.WriteAsync("Esta llave no tiene permitido request desde este dominio o esta IP");
+                return;
+            }
+
+
 
             var peticion = new Peticion() { LlaveId = llaveDB.Id, FechaPeticion = DateTime.UtcNow };
             context.Add(peticion);
             await context.SaveChangesAsync();
 
             await siguiente(httpContext);
+        }
+
+        private bool PeticionSuperaAlgunaDeLasRestricciones(LlaveAPI llaveAPI, HttpContext httpContext) {
+
+            
+            var hayRestricciones = llaveAPI.RestriccionDominio == null || llaveAPI.RestriccionesIP == null;
+            if (hayRestricciones) {
+                return true;
+            }
+
+            var peticionSuperaRestriccionesDeDominio = PeticionSuperaRestriccionDominio(llaveAPI.RestriccionDominio.ToList(), httpContext);
+
+            return peticionSuperaRestriccionesDeDominio;
+        }
+
+        private bool PeticionSuperaRestriccionDominio(List<RestriccionDominio> restricciones, HttpContext httpContext) {
+
+            if (restricciones == null || restricciones.Count == 0) {
+
+                return false;
+            }
+
+            var referer = httpContext.Request.Headers["Referer"].ToString();
+
+            if (referer == string.Empty) {
+                return false;
+            }
+
+            Uri myURI = new Uri(referer);
+            string host = myURI.Host;
+
+            var superaRestriccion = restricciones.Any(a => a.Dominio == host);
+
+            return superaRestriccion;
+
+
         }
     }
 }

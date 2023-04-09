@@ -1,0 +1,21 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FrontEnd</title>
+</head>
+<body>
+    <script>
+        var headers = new Headers({
+            "X-Api-Key":"70c323f57e2147fc8f3b9d8b7e38eb9e"
+        });
+
+        fetch("https://localhost:44375/api/autores",{headers})
+        .then(response => response.json())
+        .then(data=> console.log(data))
+    </script>
+</body>
+</html>

@@ -11,6 +11,9 @@ namespace WebAPIAutores.Entidades
         public string UsuarioId { get; set; }
         public IdentityUser Usuario { get; set; }   
         public IEnumerable<Peticion> Peticiones { get; set; }
+        public IEnumerable<RestriccionDominio> RestriccionDominio { get; set; }
+        public IEnumerable<RestriccionesIP> RestriccionesIP { get; set; }
+
     }
 
     public enum TipoLlave { 
