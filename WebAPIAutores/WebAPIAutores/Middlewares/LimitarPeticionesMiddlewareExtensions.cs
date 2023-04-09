@@ -28,6 +28,16 @@ namespace WebAPIAutores.Middlewares
             configuration.GetRequiredSection("limitarPeticiones").Bind(limitarPeticionesConfiguracion);
 
             var llaveStringValues = httpContext.Request.Headers["X-Api-Key"];
+            var ruta = httpContext.Request.Path.ToString();
+
+            var estaLaRutaEnListaBlanca = limitarPeticionesConfiguracion.ListaBlancaRutas.Any(a=> ruta.Contains(a));
+
+            if (estaLaRutaEnListaBlanca) {
+
+                await siguiente(httpContext);
+                return;
+            }
+
             if (llaveStringValues.Count == 0) {
 
                 httpContext.Response.StatusCode = 400;
