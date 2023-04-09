@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebAPIAutores;
 
@@ -11,9 +12,10 @@ using WebAPIAutores;
 namespace WebAPIAutores.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230409195707_usuarios")]
+    partial class usuarios
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -215,55 +217,6 @@ namespace WebAPIAutores.Migrations
                     b.HasIndex("UsuarioId");
 
                     b.ToTable("Comentarios");
-                });
-
-            modelBuilder.Entity("WebAPIAutores.Entidades.Factura", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<DateTime>("FechaEmision")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("FechaLimiteDePago")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal>("Monto")
-                        .HasColumnType("decimal(18,2");
-
-                    b.Property<bool>("Pagada")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("UsuarioId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UsuarioId");
-
-                    b.ToTable("Facturas");
-                });
-
-            modelBuilder.Entity("WebAPIAutores.Entidades.FacturaEmitida", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<int>("Mes")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Year")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("FacturasEmitidas");
                 });
 
             modelBuilder.Entity("WebAPIAutores.Entidades.Libro", b =>
@@ -532,15 +485,6 @@ namespace WebAPIAutores.Migrations
                     b.Navigation("Usuario");
                 });
 
-            modelBuilder.Entity("WebAPIAutores.Entidades.Factura", b =>
-                {
-                    b.HasOne("WebAPIAutores.Entidades.Usuario", "Usuario")
-                        .WithMany("Factura")
-                        .HasForeignKey("UsuarioId");
-
-                    b.Navigation("Usuario");
-                });
-
             modelBuilder.Entity("WebAPIAutores.Entidades.LlaveAPI", b =>
                 {
                     b.HasOne("WebAPIAutores.Entidades.Usuario", "Usuario")
@@ -602,11 +546,6 @@ namespace WebAPIAutores.Migrations
                     b.Navigation("RestriccionesDominio");
 
                     b.Navigation("RestriccionesIP");
-                });
-
-            modelBuilder.Entity("WebAPIAutores.Entidades.Usuario", b =>
-                {
-                    b.Navigation("Factura");
                 });
 #pragma warning restore 612, 618
         }

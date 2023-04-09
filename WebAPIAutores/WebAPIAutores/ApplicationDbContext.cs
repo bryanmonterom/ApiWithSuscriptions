@@ -8,7 +8,7 @@ using WebAPIAutores.Entidades;
 
 namespace WebAPIAutores
 {
-    public class ApplicationDbContext : IdentityDbContext
+    public class ApplicationDbContext : IdentityDbContext<Usuario>
     {
         public ApplicationDbContext(DbContextOptions options) : base(options)
         {
@@ -21,11 +21,18 @@ namespace WebAPIAutores
             modelBuilder.Entity<AutorLibro>()
                 .HasKey(al => new { al.AutorId, al.LibroId });
 
+            modelBuilder.Entity<Factura>().HasOne(a => a.Usuario).WithMany(a => a.Factura).HasForeignKey(a => a.UsuarioId);
+
+            modelBuilder.Entity<Factura>().Property(a => a.Monto).HasColumnType("decimal(18,2)");
+
         }
 
         public DbSet<Autor> Autores { get; set; }
         public DbSet<Libro> Libros { get; set; }
         public DbSet<Comentario> Comentarios { get; set; }
+        public DbSet<Factura> Facturas { get; set; }
+        public DbSet<FacturaEmitida> FacturasEmitidas { get; set; }
+
         public DbSet<LlaveAPI> LlavesAPI { get; set; }
         public DbSet<RestriccionesIP> RestriccionesIP { get; set; }
         public DbSet<RestriccionDominio> RestriccionDominio { get; set; }

@@ -56,7 +56,9 @@ namespace WebAPIAutores.Middlewares
 
             var llave = llaveStringValues[0];
 
-            var llaveDB = await context.LlavesAPI.Include(a=> a.RestriccionesDominio).Include(a=> a.RestriccionesIP).FirstOrDefaultAsync(a => a.Llave == llave);
+            var llaveDB = await context.LlavesAPI
+                .Include(a=> a.RestriccionesDominio)
+                .Include(a=> a.RestriccionesIP).Include(a=> a.Usuario).FirstOrDefaultAsync(a => a.Llave == llave);
             if (llaveDB == null)
             {
                 httpContext.Response.StatusCode = 400;
@@ -71,20 +73,25 @@ namespace WebAPIAutores.Middlewares
                 return;
             }
 
-            if (llaveDB.TipoLlave == Entidades.TipoLlave.Gratuita) {
+            if (llaveDB.TipoLlave == Entidades.TipoLlave.Gratuita)
+            {
 
                 var hoy = DateTime.Today;
                 var manana = hoy.AddDays(1);
                 var cantidadPeticionesRealizadasHoy = await context.Peticiones.CountAsync(a => a.LlaveId == llaveDB.Id && a.FechaPeticion >= hoy && a.FechaPeticion < manana);
-                if (cantidadPeticionesRealizadasHoy >= limitarPeticionesConfiguracion.PeticionesPorDiaGratuito) {
+                if (cantidadPeticionesRealizadasHoy >= limitarPeticionesConfiguracion.PeticionesPorDiaGratuito)
+                {
 
                     httpContext.Response.StatusCode = 429; // Too many request
                     await httpContext.Response.WriteAsync("Ha excedido el limite de peticiones por día. Si desea realizar mas peticiones," +
                         " actualice su suscripción a una cuenta profesional");
                     return;
                 }
-
-
+            }
+            else if (llaveDB.Usuario.MalaPaga) {
+                httpContext.Response.StatusCode = 400; // Too many request
+                await httpContext.Response.WriteAsync("El usuario es un mala paga");
+                return;
             }
 
             var superaRestricciones = PeticionSuperaAlgunaDeLasRestricciones(llaveDB, httpContext);
@@ -109,7 +116,7 @@ namespace WebAPIAutores.Middlewares
 
             
             var hayRestricciones = llaveAPI.RestriccionesDominio == null || llaveAPI.RestriccionesIP == null;
-            if (hayRestricciones) {
+            if (!hayRestricciones) {
                 return true;
             }
 
